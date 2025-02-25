@@ -152,3 +152,24 @@ NodeLink deleteNode(NodeLink root, int key)
 
     return root;
 }
+
+/* Funzione di ricerca di un valore nell'albero */
+NodeLink searchNode(NodeLink root, int key)
+{
+    /* Caso base: albero vuoto o nodo trovato */
+    if (root == NULL || root->key == key)
+    {
+        return root;
+    }
+
+    /* Se la chiave è minore, cerca a sinistra */
+    if (key < root->key)
+    {
+        return searchNode(root->left, key);
+    }
+    /* Se la chiave è maggiore, cerca a destra*/
+    else
+    {
+        return searchNode(root->right, key);
+    }
+}

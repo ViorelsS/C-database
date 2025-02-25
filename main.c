@@ -33,6 +33,29 @@ int main()
     root = deleteNode(root, 10);
     inorderTraversal(root);
 
+    // Test di ricerca
+    int searchValue = 15;
+    Node *foundNode = searchNode(root, searchValue);
+    if (foundNode != NULL)
+    {
+        printf("\nNodo con chiave %d trovato nell'albero.\n", foundNode->key);
+    }
+    else
+    {
+        printf("\nNodo con chiave %d non trovato.\n", searchValue);
+    }
+
+    searchValue = 100;
+    foundNode = searchNode(root, searchValue);
+    if (foundNode != NULL)
+    {
+        printf("Nodo con chiave %d trovato nell'albero.\n", foundNode->key);
+    }
+    else
+    {
+        printf("Nodo con chiave %d non trovato.\n", searchValue);
+    }
+
     // Libera la memoria allocata
     freeTree(root);
 
