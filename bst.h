@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
 
 /* Definizione del tipo di dati supportati */
 typedef enum
@@ -44,5 +45,9 @@ NodeLink deleteNode(NodeLink root, Value key);
 void inorderTraversal(NodeLink root);
 void freeTree(NodeLink root);
 void printValue(Value value);
+
+/* Serializzazione e deserializzazione */
+void saveTreeToFile(NodeLink root, FILE *file);
+void loadTreeFromFile(NodeLink *root, const char *filename);
 
 #endif

@@ -1,6 +1,6 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "bst.h"
 
 static int currentId = 0;
@@ -299,4 +299,69 @@ NodeLink searchNodeById(NodeLink root, int id)
 
     /* Se non è stato trovato a sinistra, cerchiamo a destra */
     return searchNodeById(root->right, id);
+}
+
+/* Serializzazione */
+void saveTreeToFile(NodeLink root, FILE *file)
+{
+    if (root != NULL)
+    {
+        // Scriviamo ID, tipo e valore
+        fprintf(file, "%d,", root->id);
+        switch (root->key.type)
+        {
+        case TYPE_INT:
+            fprintf(file, "TYPE_INT,%d\n", root->key.data.intValue);
+            break;
+        case TYPE_STRING:
+            fprintf(file, "TYPE_STRING,%s\n", root->key.data.stringValue);
+            break;
+        case TYPE_BOOL:
+            fprintf(file, "TYPE_BOOL,%d\n", root->key.data.boolValue);
+            break;
+        }
+
+        // Ricorsivamente salva i figli
+        saveTreeToFile(root->left, file);
+        saveTreeToFile(root->right, file);
+    }
+}
+
+/* Deserializzazione */
+void loadTreeFromFile(NodeLink *root, const char *filename)
+{
+    FILE *file = fopen(filename, "r");
+    if (file == NULL)
+    {
+        printf("Nessun file di salvataggio trovato.\n");
+        return;
+    }
+
+    int id;
+    char typeStr[20];
+    char valueStr[100];
+
+    while (fscanf(file, "%d,%19[^,],%99[^\n]\n", &id, typeStr, valueStr) == 3)
+    {
+        Value key;
+        if (strcmp(typeStr, "TYPE_INT") == 0)
+        {
+            key.type = TYPE_INT;
+            key.data.intValue = atoi(valueStr);
+        }
+        else if (strcmp(typeStr, "TYPE_STRING") == 0)
+        {
+            key.type = TYPE_STRING;
+            key.data.stringValue = v_strdup(valueStr);
+        }
+        else if (strcmp(typeStr, "TYPE_BOOL") == 0)
+        {
+            key.type = TYPE_BOOL;
+            key.data.boolValue = (strcmp(valueStr, "true") == 0);
+        }
+
+        *root = insertNode(*root, key);
+    }
+
+    fclose(file);
 }

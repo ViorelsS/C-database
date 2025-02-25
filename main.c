@@ -5,8 +5,15 @@
 
 int main()
 {
-    /* Inizializziamo l'albero vuoto */
     NodeLink root = NULL;
+
+    // Carica l'albero da file
+    loadTreeFromFile(&root, "database.txt");
+
+    // Stampa immediata dopo la deserializzazione
+    printf("Albero caricato da file:\n");
+    inorderTraversal(root);
+    printf("\n");
 
     /* Inseriamo valori di tipo int */
     Value intValue1 = {.type = TYPE_INT, .data.intValue = 10};
@@ -33,25 +40,27 @@ int main()
     root = insertNode(root, boolValue1);
     root = insertNode(root, boolValue2);
 
-    /* Stampa in-order per verificare l'ordine */
-    printf("\nStampa in-order dei nodi:\n");
+    // Esegui le operazioni di inserimento
+    Value intValue = {.type = TYPE_INT, .data.intValue = 30};
+    root = insertNode(root, intValue);
+
+    // Stampa per verifica
+    printf("Albero attuale:\n");
     inorderTraversal(root);
 
-    /* Ricerca per ID (proviamo con l'ID 3) */
-    int searchId = 3;
-    NodeLink foundNode = searchNodeById(root, searchId);
-    if (foundNode != NULL)
+    // Salva l'albero su file prima di uscire
+    FILE *file = fopen("database.txt", "w");
+    if (file != NULL)
     {
-        printf("\nNodo con ID %d trovato: ", foundNode->id);
-        printValue(foundNode->key);
-        printf("\n");
+        saveTreeToFile(root, file);
+        fclose(file);
     }
     else
     {
-        printf("\nNodo con ID %d non trovato.\n", searchId);
+        printf("Errore nell'apertura del file di salvataggio.\n");
     }
 
-    /* Liberiamo la memoria allocata */
+    // Libera la memoria
     freeTree(root);
     return 0;
 }

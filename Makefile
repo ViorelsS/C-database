@@ -28,7 +28,7 @@ run: all
 
 # Pulizia dei file generati
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(OBJ) $(TARGET) database.txt
 
 # Comando per ricompilare tutto da zero
 rebuild: clean all
