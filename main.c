@@ -4,23 +4,24 @@
 
 int main()
 {
-    /* Creazione di un nodo con chiave 10 */
-    NodeLink root = createNode(10);
+    // Inizializza l'albero come vuoto
+    Node *root = NULL;
 
-    /* Verifico che il nodo sia stato creato correttamente */
-    if (root != NULL)
-    {
-        printf("Nodo creato con successo\n");
-        printf("Chiave del nodo: %d\n", root->key);
-        printf("Figlio sx: %p\n", root->left);
-        printf("Figlio dx: %p\n", root->right);
-    }
-    else
-    {
-        printf("Errore nella creazione del nodo!\n");
-    }
+    // Inserisci valori nel BST
+    root = insertNode(root, 10);
+    root = insertNode(root, 5);
+    root = insertNode(root, 20);
+    root = insertNode(root, 3);
+    root = insertNode(root, 7);
+    root = insertNode(root, 15);
+    root = insertNode(root, 30);
 
-    free(root);
+    // Stampa in-order per verificare l'ordine
+    printf("Stampa in-order dei nodi:\n");
+    inorderTraversal(root);
+
+    // Libera la memoria allocata
+    freeTree(root);
 
     return 0;
 }
