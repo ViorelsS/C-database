@@ -3,3 +3,9 @@
 # 2. Integrazione di un subset di tipi di dato
 
 # 3. Modifica delle funzioni di base, integrando il supporto del tipo di valore (Value) e gestione per id
+
+# 4. Controlliamo possibili memory leak con valgrind
+
+```bash
+valgrind --leak-check=full ./bst_test
+```

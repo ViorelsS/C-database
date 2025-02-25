@@ -160,6 +160,13 @@ void freeTree(NodeLink root)
         freeTree(root->left);
         /* Libera il sottoalbero destro */
         freeTree(root->right);
+
+        // Libera il valore se è una stringa
+        if (root->key.type == TYPE_STRING && root->key.data.stringValue != NULL)
+        {
+            free(root->key.data.stringValue);
+        }
+
         /* Libera il nodo corrente */
         free(root);
     }
