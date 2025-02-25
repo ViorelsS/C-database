@@ -17,7 +17,20 @@ int main()
     root = insertNode(root, 30);
 
     // Stampa in-order per verificare l'ordine
-    printf("Stampa in-order dei nodi:\n");
+    printf("\nStampa in-order dei nodi:\n");
+    inorderTraversal(root);
+
+    // Test di eliminazione
+    printf("\nEliminazione del nodo con chiave 20:\n");
+    root = deleteNode(root, 20);
+    inorderTraversal(root);
+
+    printf("\nEliminazione del nodo con chiave 5:\n");
+    root = deleteNode(root, 5);
+    inorderTraversal(root);
+
+    printf("\nEliminazione del nodo con chiave 10:\n");
+    root = deleteNode(root, 10);
     inorderTraversal(root);
 
     // Libera la memoria allocata
