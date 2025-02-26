@@ -50,4 +50,6 @@ void printValue(Value value);
 void saveTreeToFile(NodeLink root, FILE *file);
 void loadTreeFromFile(NodeLink *root, const char *filename);
 
+char *v_strdup(const char *s);
+
 #endif

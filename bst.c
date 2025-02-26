@@ -65,6 +65,7 @@ NodeLink createNode(Value key, int id)
 
     /* Copiamo il valore in base al tipo*/
     newNode->key.type = key.type;
+
     switch (key.type)
     {
     case TYPE_INT:
@@ -112,6 +113,22 @@ NodeLink insertNode(NodeLink root, Value key)
     else if (cmp > 0)
     {
         root->right = insertNode(root->right, key);
+    }
+    else
+    {
+        /* Sostituzione di una stringa esistente */
+        if (key.type == TYPE_STRING)
+        {
+
+            /* Libera la vecchia stringa */
+            free(root->key.data.stringValue);
+            root->key.data.stringValue = v_strdup(key.data.stringValue);
+        }
+        else
+        {
+            /* Sostituzione diretta per INT e BOOL */
+            root->key = key;
+        }
     }
 
     /* Se la chiave è giù presente, non fare nulla (no duplicati) */
@@ -215,6 +232,12 @@ NodeLink deleteNode(NodeLink root, Value key)
     /* Se la chiave è uguale, elimina il nodo */
     else
     {
+        /* Liberiamo la stringa prima di eliminare il nodo */
+        if (root->key.type == TYPE_STRING && root->key.data.stringValue != NULL)
+        {
+            free(root->key.data.stringValue);
+        }
+
         /* Caso 1: nodo senza figli */
         if (root->left == NULL && root->right == NULL)
         {

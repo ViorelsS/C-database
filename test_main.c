@@ -7,6 +7,7 @@ void testDeserialization();
 void testInsertionAndOrder();
 void testSearch();
 void testDeletion();
+void testStringMemoryManagement();
 
 int main()
 {
@@ -15,6 +16,7 @@ int main()
     testInsertionAndOrder();
     testSearch();
     testDeletion();
+    testStringMemoryManagement();
 
     return 0;
 }
@@ -138,4 +140,43 @@ void testDeletion()
     printf("\n--- Fine Test ---\n");
 
     freeTree(root);
+}
+
+/* Funzione per testare l'allocazione e deallocazione delle stringhe */
+void testStringMemoryManagement()
+{
+    NodeLink root = NULL;
+
+    printf("\n--- Test Gestione Memoria Stringhe ---\n");
+
+    /* Creiamo stringhe allocate con v_strdup() */
+    char *s1 = v_strdup("alpha");
+    char *s2 = v_strdup("beta");
+    char *s3 = v_strdup("gamma");
+
+    /* Inseriamo nel BST */
+    Value val1 = {.type = TYPE_STRING, .data.stringValue = s1};
+    Value val2 = {.type = TYPE_STRING, .data.stringValue = s2};
+    Value val3 = {.type = TYPE_STRING, .data.stringValue = s3};
+
+    root = insertNode(root, val1);
+    root = insertNode(root, val2);
+    root = insertNode(root, val3);
+
+    /* Le stringhe originali sono state duplicate, quindi possiamo liberarle */
+    free(s1);
+    free(s2);
+    free(s3);
+
+    /* Controlliamo che le stringhe siano state salvate */
+    printf("Albero dopo inserimento di stringhe:\n");
+    inorderTraversal(root);
+    printf("\n");
+
+    /* Libera la memoria */
+    freeTree(root);
+
+    /* Se Valgrind non trova memory leak, il test è passato */
+    printf("✅ Test completato! Controlla Valgrind per verificare che non ci siano memory leak.\n");
+    printf("--- Fine test ---\n");
 }
