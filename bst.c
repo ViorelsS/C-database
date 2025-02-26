@@ -126,13 +126,13 @@ void printValue(Value value)
     switch (value.type)
     {
     case TYPE_INT:
-        printf("%d", value.data.intValue);
+        printf("%d ", value.data.intValue);
         break;
     case TYPE_STRING:
-        printf("%s", value.data.stringValue);
+        printf("%s ", value.data.stringValue);
         break;
     case TYPE_BOOL:
-        printf("%s", value.data.boolValue ? "true" : "false");
+        printf("%s ", value.data.boolValue ? "true" : "false");
         break;
     }
 }
@@ -361,6 +361,12 @@ void loadTreeFromFile(NodeLink *root, const char *filename)
         }
 
         *root = insertNode(*root, key);
+
+        /* Liberiamo la stringa originale dopo l'inserimento */
+        if (key.type == TYPE_STRING)
+        {
+            free(key.data.stringValue);
+        }
     }
 
     fclose(file);

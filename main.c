@@ -5,6 +5,7 @@
 
 int main()
 {
+
     NodeLink root = NULL;
 
     // Carica l'albero da file

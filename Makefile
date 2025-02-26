@@ -4,18 +4,25 @@ CC = gcc
 # Opzioni di compilazione
 CFLAGS = -std=c99 -Wall -Wextra -g
 
-# Nome dell'eseguibile
-TARGET = bst_test
+# Nome degli eseguibili
+TARGET = main
+TEST_TARGET = test_main
 
 # File sorgenti e oggetti
 SRC = main.c bst.c
 OBJ = $(SRC:.c=.o)
+TEST_SRC = test_main.c bst.c
+TEST_OBJ = $(TEST_SRC:.c=.o)
 
 # Regola principale: crea l'eseguibile
 all: $(TARGET)
 
-# Come costruire l'eseguibile dai file oggetto
+# Compilazione dell'eseguibile principale
 $(TARGET): $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $^
+
+# Compilazione dell'eseguibile per i test
+$(TEST_TARGET): $(TEST_OBJ)
 	$(CC) $(CFLAGS) -o $@ $^
 
 # Regola per compilare i singoli file .c in file .o
@@ -26,9 +33,16 @@ $(TARGET): $(OBJ)
 run: all
 	./$(TARGET)
 
+# Esegue i test
+test: $(TEST_TARGET)
+	@echo "🔍 Eseguendo test con Valgrind..."
+	@valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 ./$(TEST_TARGET)
+	@echo "✅ Nessun memory leak trovato! Ora eseguo i test..."
+	@./$(TEST_TARGET)
+
 # Pulizia dei file generati
 clean:
-	rm -f $(OBJ) $(TARGET) database.txt
+	rm -f $(OBJ) $(TEST_OBJ) $(TARGET) $(TEST_TARGET) database.txt database_test.txt
 
 # Comando per ricompilare tutto da zero
 rebuild: clean all
