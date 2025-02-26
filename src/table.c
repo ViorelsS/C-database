@@ -391,3 +391,75 @@ void freeTable(Table *table)
 
     free(table);
 }
+
+/* Funzione per la Ricerca nelle Tabelle */
+RowLink *searchRowsByColumn(Table *table, const char *columnName, Value value, int *count)
+{
+    if (!table || !columnName || !count)
+        return NULL;
+
+    *count = 0;
+    int columnIndex = -1;
+
+    // Troviamo l'indice della colonna
+    Column *col = table->columns;
+    int index = 0;
+    while (col)
+    {
+        if (strcmp(col->name, columnName) == 0)
+        {
+            columnIndex = index;
+            break;
+        }
+        col = col->nextColumn;
+        index++;
+    }
+
+    if (columnIndex == -1)
+    {
+        printf("Errore: colonna '%s' non trovata nella tabella '%s'.\n", columnName, table->name);
+        return NULL;
+    }
+
+    // Allocazione iniziale per il risultato (modificabile se necessario)
+    RowLink *results = (RowLink *)malloc(sizeof(RowLink) * 10);
+    int allocatedSize = 10;
+
+    // Scansioniamo tutte le righe
+    Row *row = table->rows;
+    while (row)
+    {
+        if (row->values[columnIndex].type == value.type)
+        {
+            int match = 0;
+            switch (value.type)
+            {
+            case TYPE_INT:
+                match = (row->values[columnIndex].data.intValue == value.data.intValue);
+                break;
+            case TYPE_STRING:
+                match = (strcmp(row->values[columnIndex].data.stringValue, value.data.stringValue) == 0);
+                break;
+            case TYPE_BOOL:
+                match = (row->values[columnIndex].data.boolValue == value.data.boolValue);
+                break;
+            default:
+                break;
+            }
+
+            if (match)
+            {
+                if (*count >= allocatedSize)
+                {
+                    allocatedSize *= 2;
+                    results = (RowLink *)realloc(results, sizeof(RowLink) * allocatedSize);
+                }
+                results[*count] = row;
+                (*count)++;
+            }
+        }
+        row = row->nextRow;
+    }
+
+    return results;
+}

@@ -39,6 +39,8 @@ void insertRow(Table *table, Value *values);
 void printTable(Table *table);
 void freeTable(Table *table);
 
+RowLink *searchRowsByColumn(Table *table, const char *columnName, Value value, int *count);
+
 /* Funzione per contare le colonne */
 int countColumns(Table *table);
 

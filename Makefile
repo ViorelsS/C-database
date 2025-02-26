@@ -4,14 +4,14 @@ CFLAGS = -std=c99 -Wall -Wextra -g -Iinclude
 TARGET = database
 TEST_TARGET = test_db
 
-SRC = main.c src/storage.c src/table.c src/row.c src/relation.c src/db.c
-OBJ = src/storage.o src/table.o src/row.o src/relation.o src/db.o
+SRC = main2.c src/storage.c src/table.c src/query.c
+OBJ = src/storage.o src/table.o src/query.o 
 TEST_SRC = tests/test_db.c src/storage.c
 TEST_OBJ = $(TEST_SRC:.c=.o)
 
 all: $(TARGET)
 
-$(TARGET): $(OBJ) main.o
+$(TARGET): $(OBJ) main2.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 $(TEST_TARGET): $(TEST_OBJ)
@@ -33,6 +33,6 @@ test: $(TEST_TARGET)
 	@./$(TEST_TARGET)
 
 clean:
-	rm -f $(OBJ) $(TEST_OBJ) main.o $(TARGET) $(TEST_TARGET) database.txt database_test.txt database_test_extended.txt
+	rm -f $(OBJ) $(TEST_OBJ) main2.o $(TARGET) $(TEST_TARGET) database.txt database_test.txt database_test_extended.txt
 
 rebuild: clean all

@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "include/table.h"
-#include "include/row.h"
 #include "include/storage.h"
 
 int main()
@@ -74,6 +73,30 @@ int main()
     }
 
     printTable(users);
+
+    printf("\n🔍 Cerco utenti con età 26...\n");
+
+    Value searchValue = {.type = TYPE_INT, .data.intValue = 26};
+    int foundCount = 0;
+    RowLink *foundRows = searchRowsByColumn(users, "age", searchValue, &foundCount);
+
+    if (foundCount > 0)
+    {
+        printf("Trovate %d righe:\n", foundCount);
+        for (int i = 0; i < foundCount; i++)
+        {
+            printf("ID: %d, Nome: %s, Età: %d\n",
+                   foundRows[i]->values[0].data.intValue,
+                   foundRows[i]->values[1].data.stringValue,
+                   foundRows[i]->values[2].data.intValue);
+        }
+    }
+    else
+    {
+        printf("Nessun risultato trovato.\n");
+    }
+
+    free(foundRows);
 
     // Cleanup memoria
     freeTable(users);
