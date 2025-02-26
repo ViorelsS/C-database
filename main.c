@@ -1,67 +1,63 @@
-#include "bst.h"
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "include/table.h"
+#include "include/row.h"
+#include "include/storage.h"
 
 int main()
 {
+    printf("Inizializzazione del database...\n");
 
-    NodeLink root = NULL;
+    // Creiamo una tabella di test
+    Table *users = createTable("users");
+    addColumn(users, "id", TYPE_INT);
+    addColumn(users, "name", TYPE_STRING);
+    addColumn(users, "age", TYPE_INT);
 
-    // Carica l'albero da file
-    loadTreeFromFile(&root, "database.txt");
+    printf("Tabella 'users' creata con colonne: id, name, age\n");
 
-    // Stampa immediata dopo la deserializzazione
-    printf("Albero caricato da file:\n");
-    inorderTraversal(root);
-    printf("\n");
+    // Inseriamo più righe nella tabella
+    Value values1[] = {
+        {.type = TYPE_INT, .data.intValue = 1},
+        {.type = TYPE_STRING, .data.stringValue = "Giovanni"},
+        {.type = TYPE_INT, .data.intValue = 25}};
+    insertRow(users, values1);
 
-    /* Inseriamo valori di tipo int */
-    Value intValue1 = {.type = TYPE_INT, .data.intValue = 10};
-    Value intValue2 = {.type = TYPE_INT, .data.intValue = 5};
-    Value intValue3 = {.type = TYPE_INT, .data.intValue = 20};
+    Value values2[] = {
+        {.type = TYPE_INT, .data.intValue = 2},
+        {.type = TYPE_STRING, .data.stringValue = "Paolo"},
+        {.type = TYPE_INT, .data.intValue = 50}};
+    insertRow(users, values2);
 
-    root = insertNode(root, intValue1);
-    root = insertNode(root, intValue2);
-    root = insertNode(root, intValue3);
+    Value values3[] = {
+        {.type = TYPE_INT, .data.intValue = 3},
+        {.type = TYPE_STRING, .data.stringValue = "Vinz"},
+        {.type = TYPE_INT, .data.intValue = 26}};
+    insertRow(users, values3);
 
-    /* Inseriamo valori di tipo string */
-    Value stringValue1 = {.type = TYPE_STRING, .data.stringValue = "alpha"};
-    Value stringValue2 = {.type = TYPE_STRING, .data.stringValue = "beta"};
-    Value stringValue3 = {.type = TYPE_STRING, .data.stringValue = "charlie"};
+    Value values4[] = {
+        {.type = TYPE_INT, .data.intValue = 4},
+        {.type = TYPE_STRING, .data.stringValue = "Max"},
+        {.type = TYPE_INT, .data.intValue = 60}};
+    insertRow(users, values4);
 
-    root = insertNode(root, stringValue1);
-    root = insertNode(root, stringValue2);
-    root = insertNode(root, stringValue3);
+    Value values5[] = {
+        {.type = TYPE_INT, .data.intValue = 5},
+        {.type = TYPE_STRING, .data.stringValue = "Vio"},
+        {.type = TYPE_INT, .data.intValue = 26}};
+    insertRow(users, values5);
 
-    /* Inserisci valori di tipo bool */
-    Value boolValue1 = {.type = TYPE_BOOL, .data.boolValue = true};
-    Value boolValue2 = {.type = TYPE_BOOL, .data.boolValue = false};
+    printf("Righe inserite:\n");
+    printf("(1, Giovanni, 25)\n");
+    printf("(2, Paolo, 50)\n");
+    printf("(3, Vinz, 26)\n");
+    printf("(4, Max, 60)\n");
+    printf("(5, Vio, 26)\n");
 
-    root = insertNode(root, boolValue1);
-    root = insertNode(root, boolValue2);
+    // Stampa i dati della tabella
+    printTable(users);
 
-    // Esegui le operazioni di inserimento
-    Value intValue = {.type = TYPE_INT, .data.intValue = 30};
-    root = insertNode(root, intValue);
+    // Cleanup memoria
+    freeTable(users);
 
-    // Stampa per verifica
-    printf("Albero attuale:\n");
-    inorderTraversal(root);
-
-    // Salva l'albero su file prima di uscire
-    FILE *file = fopen("database.txt", "w");
-    if (file != NULL)
-    {
-        saveTreeToFile(root, file);
-        fclose(file);
-    }
-    else
-    {
-        printf("Errore nell'apertura del file di salvataggio.\n");
-    }
-
-    // Libera la memoria
-    freeTree(root);
     return 0;
 }
