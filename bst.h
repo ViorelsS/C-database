@@ -11,7 +11,10 @@ typedef enum
     TYPE_INT,
     TYPE_STRING,
     TYPE_BOOL,
-
+    TYPE_FLOAT,
+    TYPE_DOUBLE,
+    TYPE_DATE, /* Formato YYYY-MM-DD */
+    TYPE_TIME  /* FOrmato HH:MM:SS */
 } DataType;
 
 /* Definizione del valore generico */
@@ -23,6 +26,20 @@ typedef struct
         int intValue;
         char *stringValue;
         bool boolValue;
+        float floatValue;
+        double doubleValue;
+        struct
+        {
+            int year;
+            int month;
+            int day;
+        } dateValue;
+        struct
+        {
+            int hour;
+            int minute;
+            int second;
+        } timeValue;
     } data;
 } Value;
 

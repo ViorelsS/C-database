@@ -12,6 +12,12 @@ void testStringMemoryManagement();
 void testStressMemoryManagement();
 void inorderLimited(NodeLink node, int *count);
 
+/* Test con i nuovi tipi */
+void testInsertionAndOrderExtended();
+void testSearchExtended();
+void testDeletionExtended();
+void testSerializationExtended();
+
 int main()
 {
     /* TEST AUTOMATICO */
@@ -21,6 +27,13 @@ int main()
     testDeletion();
     testStringMemoryManagement();
     testStressMemoryManagement();
+
+    printf("\n\n\n");
+    /* TEST AUTOMATICO CON I NUOVI TIPI */
+    testInsertionAndOrderExtended();
+    testSearchExtended();
+    testDeletionExtended();
+    testSerializationExtended();
 
     return 0;
 }
@@ -248,6 +261,7 @@ void testStressMemoryManagement()
     printf("--- Fine test ---\n");
 }
 
+/* Stampa in-order limitata a 20 nodi */
 void inorderLimited(NodeLink node, int *count)
 {
     if (node != NULL && *count < 20)
@@ -258,4 +272,143 @@ void inorderLimited(NodeLink node, int *count)
         (*count)++;
         inorderLimited(node->right, count);
     }
+}
+
+/* Test di inserimento e ordine con nuovi tipi */
+void testInsertionAndOrderExtended()
+{
+    NodeLink root = NULL;
+
+    printf("\n--- Test Inserimento e Ordine Esteso ---\n");
+
+    /* Inseriamo i nuovi tipi */
+    Value floatVal = {.type = TYPE_FLOAT, .data.floatValue = 3.14f};
+    Value doubleVal = {.type = TYPE_DOUBLE, .data.doubleValue = 2.718281828};
+    Value dateVal = {.type = TYPE_DATE, .data.dateValue = {2024, 2, 26}};
+    Value timeVal = {.type = TYPE_TIME, .data.timeValue = {14, 30, 45}};
+
+    root = insertNode(root, floatVal);
+    root = insertNode(root, doubleVal);
+    root = insertNode(root, dateVal);
+    root = insertNode(root, timeVal);
+
+    /* Stampiamo l'albero */
+    printf("Albero in ordine:\n");
+    inorderTraversal(root);
+    printf("\n--- Fine Test ---\n");
+
+    freeTree(root);
+}
+
+/* Test di ricerca dei nuovi tipi */
+void testSearchExtended()
+{
+    NodeLink root = NULL;
+
+    printf("\n--- Test Ricerca Esteso ---\n");
+
+    /* Inseriamo i valori di test */
+    Value dateVal = {.type = TYPE_DATE, .data.dateValue = {2024, 12, 31}};
+    Value timeVal = {.type = TYPE_TIME, .data.timeValue = {23, 59, 59}};
+
+    root = insertNode(root, dateVal);
+    root = insertNode(root, timeVal);
+
+    /* Cerchiamo la data */
+    NodeLink found = searchNodeByKey(root, dateVal);
+    if (found)
+    {
+        printf("Data trovata: ");
+        printValue(found->key);
+        printf("\n");
+    }
+    else
+    {
+        printf("Errore: data non trovata!\n");
+    }
+
+    /* Cerchiamo l'orario */
+    found = searchNodeByKey(root, timeVal);
+    if (found)
+    {
+        printf("Ora trovata: ");
+        printValue(found->key);
+        printf("\n");
+    }
+    else
+    {
+        printf("Errore: ora non trovata!\n");
+    }
+
+    printf("--- Fine Test ---\n");
+
+    freeTree(root);
+}
+
+/* Test di eliminazione */
+void testDeletionExtended()
+{
+    NodeLink root = NULL;
+
+    printf("\n--- Test Eliminazione Esteso ---\n");
+
+    Value floatVal = {.type = TYPE_FLOAT, .data.floatValue = 3.1415f};
+    Value dateVal = {.type = TYPE_DATE, .data.dateValue = {2023, 5, 15}};
+
+    root = insertNode(root, floatVal);
+    root = insertNode(root, dateVal);
+
+    /* Eliminiamo il valore float */
+    printf("Eliminazione di un valore float (3.1415)\n");
+    root = deleteNode(root, floatVal);
+    inorderTraversal(root);
+    printf("\n");
+
+    /* Eliminiamo il valore date */
+    printf("Eliminazione di una data (2023-05-15)\n");
+    root = deleteNode(root, dateVal);
+    inorderTraversal(root);
+    printf("\n");
+
+    printf("--- Fine Test ---\n");
+
+    freeTree(root);
+}
+
+/* Test di serializzazione e deserializzazione */
+void testSerializationExtended()
+{
+    NodeLink root = NULL;
+
+    printf("\n--- Test Serializzazione e Deserializzazione Esteso ---\n");
+
+    Value doubleVal = {.type = TYPE_DOUBLE, .data.doubleValue = 1.618033988};
+    Value timeVal = {.type = TYPE_TIME, .data.timeValue = {12, 45, 30}};
+
+    root = insertNode(root, doubleVal);
+    root = insertNode(root, timeVal);
+
+    /* Salviamo su file */
+    FILE *file = fopen("database_test_extended.txt", "w");
+    if (file)
+    {
+        saveTreeToFile(root, file);
+        fclose(file);
+    }
+    else
+    {
+        printf("Errore: impossibile aprire il file di test.\n");
+    }
+
+    /* Liberiamo la memoria e ricarichiamo l'albero */
+    freeTree(root);
+    root = NULL;
+    loadTreeFromFile(&root, "database_test_extended.txt");
+
+    /* Stampiamo l'albero ricaricato */
+    printf("Dati deserializzati:\n");
+    inorderTraversal(root);
+    printf("\n--- Fine Test ---\n");
+
+    freeTree(root);
 }

@@ -42,7 +42,7 @@ test: $(TEST_TARGET)
 
 # Pulizia dei file generati
 clean:
-	rm -f $(OBJ) $(TEST_OBJ) $(TARGET) $(TEST_TARGET) database.txt database_test.txt
+	rm -f $(OBJ) $(TEST_OBJ) $(TARGET) $(TEST_TARGET) database.txt database_test.txt database_test_extended.txt
 
 # Comando per ricompilare tutto da zero
 rebuild: clean all

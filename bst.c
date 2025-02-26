@@ -37,15 +37,38 @@ int compareValues(Value a, Value b)
     switch (a.type)
     {
     case TYPE_INT:
-        return a.data.intValue - b.data.intValue;
+        return (a.data.intValue > b.data.intValue) - (a.data.intValue < b.data.intValue);
+
     case TYPE_STRING:
         if (a.data.stringValue == NULL || b.data.stringValue == NULL)
         {
             return (a.data.stringValue == NULL) - (b.data.stringValue == NULL);
         }
         return strcmp(a.data.stringValue, b.data.stringValue);
+
     case TYPE_BOOL:
         return a.data.boolValue - b.data.boolValue;
+
+    case TYPE_FLOAT:
+        return (a.data.floatValue > b.data.floatValue) - (a.data.floatValue < b.data.floatValue);
+
+    case TYPE_DOUBLE:
+        return (a.data.doubleValue > b.data.doubleValue) - (a.data.doubleValue < b.data.doubleValue);
+
+    case TYPE_DATE:
+        if (a.data.dateValue.year != b.data.dateValue.year)
+            return a.data.dateValue.year - b.data.dateValue.year;
+        if (a.data.dateValue.month != b.data.dateValue.month)
+            return a.data.dateValue.month - b.data.dateValue.month;
+        return a.data.dateValue.day - b.data.dateValue.day;
+
+    case TYPE_TIME:
+        if (a.data.timeValue.hour != b.data.timeValue.hour)
+            return a.data.timeValue.hour - b.data.timeValue.hour;
+        if (a.data.timeValue.minute != b.data.timeValue.minute)
+            return a.data.timeValue.minute - b.data.timeValue.minute;
+        return a.data.timeValue.second - b.data.timeValue.second;
+
     default:
         return 0;
     }
@@ -86,6 +109,22 @@ NodeLink createNode(Value key, int id)
         break;
     case TYPE_BOOL:
         newNode->key.data.boolValue = key.data.boolValue;
+        break;
+    case TYPE_FLOAT:
+        newNode->key.data.floatValue = key.data.floatValue;
+        break;
+    case TYPE_DOUBLE:
+        newNode->key.data.doubleValue = key.data.doubleValue;
+        break;
+    case TYPE_DATE:
+        newNode->key.data.dateValue.year = key.data.dateValue.year;
+        newNode->key.data.dateValue.month = key.data.dateValue.month;
+        newNode->key.data.dateValue.day = key.data.dateValue.day;
+        break;
+    case TYPE_TIME:
+        newNode->key.data.timeValue.hour = key.data.timeValue.hour;
+        newNode->key.data.timeValue.minute = key.data.timeValue.minute;
+        newNode->key.data.timeValue.second = key.data.timeValue.second;
         break;
     }
 
@@ -154,6 +193,20 @@ void printValue(Value value)
         break;
     case TYPE_BOOL:
         printf("%s ", value.data.boolValue ? "true" : "false");
+        break;
+    case TYPE_FLOAT:
+        printf("%.2f ", value.data.floatValue);
+        break;
+    case TYPE_DOUBLE:
+        printf("%.2lf ", value.data.doubleValue);
+        break;
+    case TYPE_DATE:
+        printf("%04d-%02d-%02d ", value.data.dateValue.year,
+               value.data.dateValue.month, value.data.dateValue.day);
+        break;
+    case TYPE_TIME:
+        printf("%02d:%02d:%02d ", value.data.timeValue.hour,
+               value.data.timeValue.minute, value.data.timeValue.second);
         break;
     }
 }
@@ -364,6 +417,22 @@ void saveTreeToFile(NodeLink root, FILE *file)
         case TYPE_BOOL:
             fprintf(file, "TYPE_BOOL,%d\n", root->key.data.boolValue);
             break;
+        case TYPE_FLOAT:
+            fprintf(file, "TYPE_FLOAT,%f\n", root->key.data.floatValue);
+            break;
+        case TYPE_DOUBLE:
+            fprintf(file, "TYPE_DOUBLE,%lf\n", root->key.data.doubleValue);
+            break;
+        case TYPE_DATE:
+            fprintf(file, "TYPE_DATE,%04d-%02d-%02d\n",
+                    root->key.data.dateValue.year, root->key.data.dateValue.month,
+                    root->key.data.dateValue.day);
+            break;
+        case TYPE_TIME:
+            fprintf(file, "TYPE_TIME,%02d:%02d:%02d\n",
+                    root->key.data.timeValue.hour, root->key.data.timeValue.minute,
+                    root->key.data.timeValue.second);
+            break;
         }
 
         // Ricorsivamente salva i figli
@@ -403,6 +472,26 @@ void loadTreeFromFile(NodeLink *root, const char *filename)
         {
             key.type = TYPE_BOOL;
             key.data.boolValue = (strcmp(valueStr, "true") == 0);
+        }
+        else if (strcmp(typeStr, "TYPE_FLOAT") == 0)
+        {
+            key.type = TYPE_FLOAT;
+            key.data.floatValue = atof(valueStr);
+        }
+        else if (strcmp(typeStr, "TYPE_DOUBLE") == 0)
+        {
+            key.type = TYPE_DOUBLE;
+            key.data.doubleValue = atof(valueStr);
+        }
+        else if (strcmp(typeStr, "TYPE_DATE") == 0)
+        {
+            key.type = TYPE_DATE;
+            sscanf(valueStr, "%d-%d-%d", &key.data.dateValue.year, &key.data.dateValue.month, &key.data.dateValue.day);
+        }
+        else if (strcmp(typeStr, "TYPE_TIME") == 0)
+        {
+            key.type = TYPE_TIME;
+            sscanf(valueStr, "%d:%d:%d", &key.data.timeValue.hour, &key.data.timeValue.minute, &key.data.timeValue.second);
         }
 
         *root = insertNode(*root, key);
