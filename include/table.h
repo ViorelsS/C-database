@@ -39,4 +39,7 @@ void insertRow(Table *table, Value *values);
 void printTable(Table *table);
 void freeTable(Table *table);
 
+/* Funzione per contare le colonne */
+int countColumns(Table *table);
+
 #endif

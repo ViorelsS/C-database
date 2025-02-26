@@ -21,7 +21,10 @@ $(TEST_TARGET): $(TEST_OBJ)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run: all
-	./$(TARGET)
+	@echo "🔍 Eseguendo diagnosi con Valgrind..."
+	@valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 ./$(TARGET)
+	@echo "✅ Nessun memory leak trovato!"
+	@./$(TARGET)
 
 test: $(TEST_TARGET)
 	@echo "🔍 Eseguendo test con Valgrind..."

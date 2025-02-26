@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "include/table.h"
 #include "include/row.h"
 #include "include/storage.h"
@@ -15,34 +16,34 @@ int main()
 
     printf("Tabella 'users' creata con colonne: id, name, age\n");
 
-    // Inseriamo più righe nella tabella
+    // Inseriamo più righe nella tabella con strdup()
     Value values1[] = {
         {.type = TYPE_INT, .data.intValue = 1},
-        {.type = TYPE_STRING, .data.stringValue = "Giovanni"},
+        {.type = TYPE_STRING, .data.stringValue = v_strdup("Giovanni")},
         {.type = TYPE_INT, .data.intValue = 25}};
     insertRow(users, values1);
 
     Value values2[] = {
         {.type = TYPE_INT, .data.intValue = 2},
-        {.type = TYPE_STRING, .data.stringValue = "Paolo"},
+        {.type = TYPE_STRING, .data.stringValue = v_strdup("Paolo")},
         {.type = TYPE_INT, .data.intValue = 50}};
     insertRow(users, values2);
 
     Value values3[] = {
         {.type = TYPE_INT, .data.intValue = 3},
-        {.type = TYPE_STRING, .data.stringValue = "Vinz"},
+        {.type = TYPE_STRING, .data.stringValue = v_strdup("Vinz")},
         {.type = TYPE_INT, .data.intValue = 26}};
     insertRow(users, values3);
 
     Value values4[] = {
         {.type = TYPE_INT, .data.intValue = 4},
-        {.type = TYPE_STRING, .data.stringValue = "Max"},
+        {.type = TYPE_STRING, .data.stringValue = v_strdup("Max")},
         {.type = TYPE_INT, .data.intValue = 60}};
     insertRow(users, values4);
 
     Value values5[] = {
         {.type = TYPE_INT, .data.intValue = 5},
-        {.type = TYPE_STRING, .data.stringValue = "Vio"},
+        {.type = TYPE_STRING, .data.stringValue = v_strdup("Vio")},
         {.type = TYPE_INT, .data.intValue = 26}};
     insertRow(users, values5);
 
@@ -53,7 +54,25 @@ int main()
     printf("(4, Max, 60)\n");
     printf("(5, Vio, 26)\n");
 
+    free(values1[1].data.stringValue);
+    free(values2[1].data.stringValue);
+    free(values3[1].data.stringValue);
+    free(values4[1].data.stringValue);
+    free(values5[1].data.stringValue);
+
     // Stampa i dati della tabella
+    printf("Stampo la tabella...\n");
+
+    Row *row = users->rows;
+    while (row)
+    {
+        for (int i = 0; i < countColumns(users); i++)
+        {
+            printf("Colonna %d, Tipo: %d\n", i, row->values[i].type);
+        }
+        row = row->nextRow;
+    }
+
     printTable(users);
 
     // Cleanup memoria
