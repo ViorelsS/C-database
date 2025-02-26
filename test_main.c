@@ -2,12 +2,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 void testDeserialization();
 void testInsertionAndOrder();
 void testSearch();
 void testDeletion();
 void testStringMemoryManagement();
+void testStressMemoryManagement();
+void inorderLimited(NodeLink node, int *count);
 
 int main()
 {
@@ -17,6 +20,7 @@ int main()
     testSearch();
     testDeletion();
     testStringMemoryManagement();
+    testStressMemoryManagement();
 
     return 0;
 }
@@ -179,4 +183,79 @@ void testStringMemoryManagement()
     /* Se Valgrind non trova memory leak, il test è passato */
     printf("✅ Test completato! Controlla Valgrind per verificare che non ci siano memory leak.\n");
     printf("--- Fine test ---\n");
+}
+
+/* Stress test */
+void testStressMemoryManagement()
+{
+    NodeLink root = NULL;
+    /* Inseriamo 10.000 nodi */
+    int numNodes = 20;
+
+    printf("\n--- Test stress gestione memoria stringhe ---\n");
+
+    /* Inseriamo molte stringhe nel BST */
+    for (int i = 0; i < numNodes; i++)
+    {
+        char buffer[20];
+        snprintf(buffer, sizeof(buffer), "string-%d", i);
+        Value val = {.type = TYPE_STRING, .data.stringValue = v_strdup(buffer)};
+        root = insertNode(root, val);
+        free(val.data.stringValue);
+    }
+
+    printf("✅ %d stringhe inserite nel BST.\n", numNodes);
+
+    /* Eliminiamo casualmente alcuni nodi casualmente */
+    srand(time(NULL));
+    /* Rimuoviamo il 10% dei nodi*/
+    for (int i = 0; i < numNodes / 10; i++)
+    {
+        int idToRemove = rand() % numNodes;
+        char buffer[25];
+        snprintf(buffer, sizeof(buffer), "string-%d", idToRemove);
+
+        Value val = {.type = TYPE_STRING, .data.stringValue = v_strdup(buffer)};
+
+        NodeLink nodeToDelete = searchNodeByKey(root, val);
+        if (nodeToDelete != NULL && nodeToDelete->key.type == TYPE_STRING)
+        {
+            free(nodeToDelete->key.data.stringValue);
+            nodeToDelete->key.data.stringValue = NULL;
+        }
+
+        /* Eliminiamo il nodo */
+        root = deleteNode(root, val);
+
+        free(val.data.stringValue);
+    }
+
+    printf("✅ Rimosse il 10%% delle stringhe casualmente.\n");
+
+    /* Controlliamo che le stringhe siano ancora in ordine */
+    printf("Stampa in-order dopo eliminazioni (prime 20 voci):\n");
+
+    int count = 0;
+
+    inorderLimited(root, &count);
+    printf("\n");
+
+    /* Liberiamo la memoria */
+    freeTree(root);
+
+    /* Se Valgrind non trova memory leak, il test è passato */
+    printf("✅ Test completato! Controlla Valgrind per verificare che non ci siano memory leak.\n");
+    printf("--- Fine test ---\n");
+}
+
+void inorderLimited(NodeLink node, int *count)
+{
+    if (node != NULL && *count < 20)
+    {
+        inorderLimited(node->left, count);
+        printValue(node->key);
+        printf(" ");
+        (*count)++;
+        inorderLimited(node->right, count);
+    }
 }

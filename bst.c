@@ -39,6 +39,10 @@ int compareValues(Value a, Value b)
     case TYPE_INT:
         return a.data.intValue - b.data.intValue;
     case TYPE_STRING:
+        if (a.data.stringValue == NULL || b.data.stringValue == NULL)
+        {
+            return (a.data.stringValue == NULL) - (b.data.stringValue == NULL);
+        }
         return strcmp(a.data.stringValue, b.data.stringValue);
     case TYPE_BOOL:
         return a.data.boolValue - b.data.boolValue;
@@ -182,6 +186,7 @@ void freeTree(NodeLink root)
         if (root->key.type == TYPE_STRING && root->key.data.stringValue != NULL)
         {
             free(root->key.data.stringValue);
+            root->key.data.stringValue = NULL;
         }
 
         /* Libera il nodo corrente */
@@ -236,6 +241,7 @@ NodeLink deleteNode(NodeLink root, Value key)
         if (root->key.type == TYPE_STRING && root->key.data.stringValue != NULL)
         {
             free(root->key.data.stringValue);
+            root->key.data.stringValue = NULL;
         }
 
         /* Caso 1: nodo senza figli */
@@ -262,8 +268,24 @@ NodeLink deleteNode(NodeLink root, Value key)
         {
             /* Successore in order */
             NodeLink tmp = findMin(root->right);
+
+            /* Se il nodo da eliminare contiene una stringa, liberiamo la memoria prima di sovrascrivere */
+            if (root->key.type == TYPE_STRING && root->key.data.stringValue != NULL)
+            {
+                free(root->key.data.stringValue);
+            }
+
             /* Copia il valore del successore */
-            root->key = tmp->key;
+            root->key.type = tmp->key.type;
+            if (tmp->key.type == TYPE_STRING)
+            {
+                root->key.data.stringValue = v_strdup(tmp->key.data.stringValue);
+            }
+            else
+            {
+                root->key = tmp->key;
+            }
+
             /* Elimina il successore */
             root->right = deleteNode(root->right, tmp->key);
         }
