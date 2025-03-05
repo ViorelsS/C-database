@@ -1,48 +1,51 @@
-# Nome del compilatore
 CC = gcc
+CFLAGS = -std=c99 -Wall -Wextra -g -Iinclude
 
-# Opzioni di compilazione
-CFLAGS = -std=c99 -Wall -Wextra -g
+TARGET = database
+TEST_TARGET = test_db
+SERVER_TARGET = server
 
-# Nome degli eseguibili
-TARGET = main
-TEST_TARGET = test_main
-
-# File sorgenti e oggetti
-SRC = main.c bst.c
-OBJ = $(SRC:.c=.o)
-TEST_SRC = test_main.c bst.c
+SRC = main2.c src/storage.c src/table.c src/query.c
+OBJ = src/storage.o src/table.o src/query.o 
+TEST_SRC = tests/test_db.c src/storage.c
 TEST_OBJ = $(TEST_SRC:.c=.o)
+SERVER_SRC = server.c src/storage.c src/table.c src/query.c
+SERVER_OBJ = $(SERVER_SRC:.c=.o)
 
-# Regola principale: crea l'eseguibile
 all: $(TARGET)
 
-# Compilazione dell'eseguibile principale
-$(TARGET): $(OBJ)
+$(TARGET): $(OBJ) main2.o
 	$(CC) $(CFLAGS) -o $@ $^
 
-# Compilazione dell'eseguibile per i test
 $(TEST_TARGET): $(TEST_OBJ)
 	$(CC) $(CFLAGS) -o $@ $^
 
-# Regola per compilare i singoli file .c in file .o
-%.o: %.c bst.h
+$(SERVER_TARGET): $(SERVER_OBJ)
+	$(CC) $(CFLAGS) -o $@ $^
+
+%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Esegue il programma dopo la compilazione
 run: all
-	./$(TARGET)
+	@echo "🔍 Eseguendo diagnosi con Valgrind..."
+	@valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 ./$(TARGET)
+	@echo "✅ Nessun memory leak trovato!"
+	@./$(TARGET)
 
-# Esegue i test
 test: $(TEST_TARGET)
 	@echo "🔍 Eseguendo test con Valgrind..."
 	@valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 ./$(TEST_TARGET)
 	@echo "✅ Nessun memory leak trovato! Ora eseguo i test..."
 	@./$(TEST_TARGET)
 
-# Pulizia dei file generati
-clean:
-	rm -f $(OBJ) $(TEST_OBJ) $(TARGET) $(TEST_TARGET) database.txt database_test.txt database_test_extended.txt
+run-server: $(SERVER_TARGET)
+	@echo "🚀 Avvio del server C..."
+	@./$(SERVER_TARGET)
 
-# Comando per ricompilare tutto da zero
+clean:
+	rm -f $(OBJ) $(TEST_OBJ) main2.o $(TARGET) $(TEST_TARGET) database.txt database_test.txt database_test_extended.txt
+	
+clean-server:
+	rm -f $(OBJ) $(SERVER_OBJ) main2.o $(TARGET) $(SERVER_TARGET)
+
 rebuild: clean all

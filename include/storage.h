@@ -1,47 +1,10 @@
-#ifndef BST_H
-#define BST_H
+#ifndef STORAGE_H
+#define STORAGE_H
 
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
-
-/* Definizione del tipo di dati supportati */
-typedef enum
-{
-    TYPE_INT,
-    TYPE_STRING,
-    TYPE_BOOL,
-    TYPE_FLOAT,
-    TYPE_DOUBLE,
-    TYPE_DATE, /* Formato YYYY-MM-DD */
-    TYPE_TIME  /* FOrmato HH:MM:SS */
-} DataType;
-
-/* Definizione del valore generico */
-typedef struct
-{
-    DataType type;
-    union
-    {
-        int intValue;
-        char *stringValue;
-        bool boolValue;
-        float floatValue;
-        double doubleValue;
-        struct
-        {
-            int year;
-            int month;
-            int day;
-        } dateValue;
-        struct
-        {
-            int hour;
-            int minute;
-            int second;
-        } timeValue;
-    } data;
-} Value;
+#include "types.h"
 
 /* Definizione del nodo del BST */
 typedef struct node_s *NodeLink;

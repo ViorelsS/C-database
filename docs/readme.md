@@ -1,7 +1,6 @@
 # Binary Search Tree (BST) in C
 
-_Approccio iniziale:_ Questo progetto implementa una semplice struttura dati **Binary Search Tree (BST)** in linguaggio **C (C99)**. Il BST permette di inserire, cercare, eliminare e stampare elementi in ordine crescente.
-**Approccio db relazionale:** todo
+Questo progetto implementa una semplice struttura dati **Binary Search Tree (BST)** in linguaggio **C (C99)**. Il BST permette di inserire, cercare, eliminare e stampare elementi in ordine crescente.
 
 ## ✅ Requisiti
 

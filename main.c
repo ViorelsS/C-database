@@ -1,67 +1,105 @@
-#include "bst.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include "include/table.h"
+#include "include/storage.h"
 
 int main()
 {
+    printf("Inizializzazione del database...\n");
 
-    NodeLink root = NULL;
+    // Creiamo una tabella di test
+    Table *users = createTable("users");
+    addColumn(users, "id", TYPE_INT);
+    addColumn(users, "name", TYPE_STRING);
+    addColumn(users, "age", TYPE_INT);
 
-    // Carica l'albero da file
-    loadTreeFromFile(&root, "database.txt");
+    printf("Tabella 'users' creata con colonne: id, name, age\n");
 
-    // Stampa immediata dopo la deserializzazione
-    printf("Albero caricato da file:\n");
-    inorderTraversal(root);
-    printf("\n");
+    // Inseriamo più righe nella tabella con strdup()
+    Value values1[] = {
+        {.type = TYPE_INT, .data.intValue = 1},
+        {.type = TYPE_STRING, .data.stringValue = v_strdup("Giovanni")},
+        {.type = TYPE_INT, .data.intValue = 25}};
+    insertRow(users, values1);
 
-    /* Inseriamo valori di tipo int */
-    Value intValue1 = {.type = TYPE_INT, .data.intValue = 10};
-    Value intValue2 = {.type = TYPE_INT, .data.intValue = 5};
-    Value intValue3 = {.type = TYPE_INT, .data.intValue = 20};
+    Value values2[] = {
+        {.type = TYPE_INT, .data.intValue = 2},
+        {.type = TYPE_STRING, .data.stringValue = v_strdup("Paolo")},
+        {.type = TYPE_INT, .data.intValue = 50}};
+    insertRow(users, values2);
 
-    root = insertNode(root, intValue1);
-    root = insertNode(root, intValue2);
-    root = insertNode(root, intValue3);
+    Value values3[] = {
+        {.type = TYPE_INT, .data.intValue = 3},
+        {.type = TYPE_STRING, .data.stringValue = v_strdup("Vinz")},
+        {.type = TYPE_INT, .data.intValue = 26}};
+    insertRow(users, values3);
 
-    /* Inseriamo valori di tipo string */
-    Value stringValue1 = {.type = TYPE_STRING, .data.stringValue = "alpha"};
-    Value stringValue2 = {.type = TYPE_STRING, .data.stringValue = "beta"};
-    Value stringValue3 = {.type = TYPE_STRING, .data.stringValue = "charlie"};
+    Value values4[] = {
+        {.type = TYPE_INT, .data.intValue = 4},
+        {.type = TYPE_STRING, .data.stringValue = v_strdup("Max")},
+        {.type = TYPE_INT, .data.intValue = 60}};
+    insertRow(users, values4);
 
-    root = insertNode(root, stringValue1);
-    root = insertNode(root, stringValue2);
-    root = insertNode(root, stringValue3);
+    Value values5[] = {
+        {.type = TYPE_INT, .data.intValue = 5},
+        {.type = TYPE_STRING, .data.stringValue = v_strdup("Vio")},
+        {.type = TYPE_INT, .data.intValue = 26}};
+    insertRow(users, values5);
 
-    /* Inserisci valori di tipo bool */
-    Value boolValue1 = {.type = TYPE_BOOL, .data.boolValue = true};
-    Value boolValue2 = {.type = TYPE_BOOL, .data.boolValue = false};
+    printf("Righe inserite:\n");
+    printf("(1, Giovanni, 25)\n");
+    printf("(2, Paolo, 50)\n");
+    printf("(3, Vinz, 26)\n");
+    printf("(4, Max, 60)\n");
+    printf("(5, Vio, 26)\n");
 
-    root = insertNode(root, boolValue1);
-    root = insertNode(root, boolValue2);
+    free(values1[1].data.stringValue);
+    free(values2[1].data.stringValue);
+    free(values3[1].data.stringValue);
+    free(values4[1].data.stringValue);
+    free(values5[1].data.stringValue);
 
-    // Esegui le operazioni di inserimento
-    Value intValue = {.type = TYPE_INT, .data.intValue = 30};
-    root = insertNode(root, intValue);
+    // Stampa i dati della tabella
+    printf("Stampo la tabella...\n");
 
-    // Stampa per verifica
-    printf("Albero attuale:\n");
-    inorderTraversal(root);
-
-    // Salva l'albero su file prima di uscire
-    FILE *file = fopen("database.txt", "w");
-    if (file != NULL)
+    Row *row = users->rows;
+    while (row)
     {
-        saveTreeToFile(root, file);
-        fclose(file);
+        for (int i = 0; i < countColumns(users); i++)
+        {
+            printf("Colonna %d, Tipo: %d\n", i, row->values[i].type);
+        }
+        row = row->nextRow;
+    }
+
+    printTable(users);
+
+    printf("\n🔍 Cerco utenti con età 26...\n");
+
+    Value searchValue = {.type = TYPE_INT, .data.intValue = 26};
+    int foundCount = 0;
+    RowLink *foundRows = searchRowsByColumn(users, "age", searchValue, &foundCount);
+
+    if (foundCount > 0)
+    {
+        printf("Trovate %d righe:\n", foundCount);
+        for (int i = 0; i < foundCount; i++)
+        {
+            printf("ID: %d, Nome: %s, Età: %d\n",
+                   foundRows[i]->values[0].data.intValue,
+                   foundRows[i]->values[1].data.stringValue,
+                   foundRows[i]->values[2].data.intValue);
+        }
     }
     else
     {
-        printf("Errore nell'apertura del file di salvataggio.\n");
+        printf("Nessun risultato trovato.\n");
     }
 
-    // Libera la memoria
-    freeTree(root);
+    free(foundRows);
+
+    // Cleanup memoria
+    freeTable(users);
+
     return 0;
 }

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "bst.h"
+#include "storage.h"
 
 static int currentId = 0;
 
@@ -20,7 +20,7 @@ char *v_strdup(const char *s)
 }
 
 /* -----------------------------------------*/
-/* --------------- DATABASE ----------------*/
+/* --------------- BST ----------------*/
 /* -----------------------------------------*/
 
 /* Funzione per confrontare due chiavi generiche */
