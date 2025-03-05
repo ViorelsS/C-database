@@ -3,6 +3,6 @@
 
 #include "table.h"
 
-void executeQuery(Table *table, const char *query);
+RowLink *executeQuery(Table *table, const char *query, int *count);
 
 #endif

@@ -4,20 +4,19 @@
 #include "table.h"
 #include <ctype.h>
 
-void executeQuery(Table *table, const char *query)
+RowLink *executeQuery(Table *table, const char *query, int *count)
 {
     if (strncmp(query, "SELECT", 6) == 0)
     {
-        // Estrarre la colonna e la condizione (se presente)
-        char columnName[50], conditionColumn[50], conditionValue[50];
-        int hasWhere = sscanf(query, "SELECT %49[^ ] FROM %*s WHERE %49[^=]=%49s", columnName, conditionColumn, conditionValue);
+        printf("Eseguo SELECT...\n");
 
-        if (hasWhere == 3)
+        // Controlliamo se c'è una condizione WHERE
+        char columnName[50], conditionValue[50];
+        int hasWhere = sscanf(query, "SELECT * FROM users WHERE %49[^=]=%49s", columnName, conditionValue);
+
+        Value searchValue;
+        if (hasWhere == 2)
         {
-            printf("Eseguo SELECT su colonna '%s' con WHERE %s = %s...\n", columnName, conditionColumn, conditionValue);
-
-            // Convertiamo il valore della condizione in un Value
-            Value searchValue;
             if (isdigit(conditionValue[0]))
             {
                 searchValue.type = TYPE_INT;
@@ -29,68 +28,33 @@ void executeQuery(Table *table, const char *query)
                 searchValue.data.stringValue = conditionValue;
             }
 
-            // Cerchiamo i risultati
-            int count = 0;
-            RowLink *rows = searchRowsByColumn(table, conditionColumn, searchValue, &count);
+            return searchRowsByColumn(table, columnName, searchValue, count);
+        }
+        else
+        {
+            // Se non c'è WHERE, restituisci tutte le righe
+            RowLink *allRows = malloc(sizeof(RowLink) * 10);
+            int allocatedSize = 10;
+            *count = 0;
 
-            // Stampiamo i risultati
-            if (count > 0)
+            Row *row = table->rows;
+            while (row)
             {
-                for (int i = 0; i < count; i++)
+                if (*count >= allocatedSize)
                 {
-                    printf("ID: %d, Nome: %s, Età: %d\n",
-                           rows[i]->values[0].data.intValue,
-                           rows[i]->values[1].data.stringValue,
-                           rows[i]->values[2].data.intValue);
+                    allocatedSize *= 2;
+                    allRows = realloc(allRows, sizeof(RowLink) * allocatedSize);
                 }
+                allRows[*count] = row;
+                (*count)++;
+                row = row->nextRow;
             }
-            else
-            {
-                printf("Nessun risultato trovato.\n");
-            }
-            free(rows);
-        }
-        else
-        {
-            printf("Eseguo SELECT su tutte le righe della tabella...\n");
-            printTable(table);
-        }
-    }
-    else if (strncmp(query, "INSERT", 6) == 0)
-    {
-        int id, age;
-        char name[50];
-
-        if (sscanf(query, "INSERT INTO users (id, name, age) VALUES (%d, \"%49[^\"]\", %d);", &id, name, &age) == 3)
-        {
-            printf("Eseguo INSERT INTO users VALUES (%d, %s, %d)\n", id, name, age);
-            Value values[] = {
-                {.type = TYPE_INT, .data.intValue = id},
-                {.type = TYPE_STRING, .data.stringValue = name},
-                {.type = TYPE_INT, .data.intValue = age}};
-            insertRow(table, values);
-        }
-        else
-        {
-            printf("Errore nella sintassi di INSERT.\n");
-        }
-    }
-    else if (strncmp(query, "DELETE", 6) == 0)
-    {
-        int id;
-        if (sscanf(query, "DELETE FROM users WHERE id=%d;", &id) == 1)
-        {
-            printf("Eseguo DELETE WHERE id=%d\n", id);
-            Value key = {.type = TYPE_INT, .data.intValue = id};
-            table->root = deleteNode(table->root, key);
-        }
-        else
-        {
-            printf("Errore nella sintassi di DELETE.\n");
+            return allRows;
         }
     }
     else
     {
-        printf("Comando non riconosciuto: %s\n", query);
+        printf("Query non supportata: %s\n", query);
+        return NULL;
     }
 }
