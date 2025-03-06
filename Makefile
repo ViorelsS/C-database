@@ -9,7 +9,7 @@ SRC = main2.c src/storage.c src/table.c src/query.c
 OBJ = src/storage.o src/table.o src/query.o 
 TEST_SRC = tests/test_db.c src/storage.c
 TEST_OBJ = $(TEST_SRC:.c=.o)
-SERVER_SRC = server.c src/storage.c src/table.c src/query.c
+SERVER_SRC = server.c src/storage.c src/table.c src/query.c src/database.c
 SERVER_OBJ = $(SERVER_SRC:.c=.o)
 
 all: $(TARGET)

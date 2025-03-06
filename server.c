@@ -3,8 +3,9 @@
 #include <string.h>
 #include <unistd.h>    /* Fornisce funzioni come close() per gestire i file descriptor */
 #include <arpa/inet.h> /* Contiene le funzioni per i socket e la comunicazione di rete */
-#include <table.h>
-#include <query.h>
+#include "table.h"
+#include "query.h"
+#include "database.h"
 
 #define PORT 8080        /* Il server TCP accetterà connessioni su questa porta */
 #define BUFFER_SIZE 1024 /* Buffer per ricevere dati dal client */
@@ -72,11 +73,15 @@ int main()
 {
     printf("Avvio del server database...\n");
 
+    /* Creazione del database */
+    Database *db = createDatabase();
+
     /* Creazione della tabella di test */
     Table *users = createTable("users");
     addColumn(users, "id", TYPE_INT);
     addColumn(users, "name", TYPE_STRING);
     addColumn(users, "age", TYPE_INT);
+    addTable(db, users);
 
     Value values1[] = {
         {.type = TYPE_INT, .data.intValue = 1},
@@ -149,10 +154,54 @@ int main()
         }
 
         printf("Nuova connessione accettata.\n");
-        handle_client(client_socket, users);
-    }
 
-    freeTable(users);
-    close(server_socket);
-    return 0;
+        char buffer[BUFFER_SIZE];
+        memset(buffer, 0, BUFFER_SIZE);
+        recv(client_socket, buffer, BUFFER_SIZE - 1, 0);
+
+        if (strncmp(buffer, "LIST TABLES", 11) == 0)
+        {
+            char response[BUFFER_SIZE] = "Tabelle:\n";
+            TableNode *current = db->tables;
+            while (current)
+            {
+                strcat(response, current->table->name);
+                strcat(response, "\n");
+                current = current->next;
+            }
+            send(client_socket, response, strlen(response), 0);
+        }
+        else if (strncmp(buffer, "CREATE TABLE", 12) == 0)
+        {
+            char tableName[50];
+            sscanf(buffer, "CREATE TABLE %s", tableName);
+            Table *newTable = createTable(tableName);
+            addTable(db, newTable);
+            send(client_socket, "Tabella creata\n", 15, 0);
+        }
+        else if (strncmp(buffer, "FETCH TABLE", 11) == 0)
+        {
+            char tableName[50];
+            sscanf(buffer, "FETCH TABLE %s", tableName);
+            Table *table = getTable(db, tableName);
+            if (table)
+            {
+                printTable(table);
+                send(client_socket, "Tabella stampata\n", 18, 0);
+            }
+            else
+            {
+                send(client_socket, "Tabella non trovata\n", 21, 0);
+            }
+        }
+        else
+        {
+            handle_client(client_socket, users);
+            send(client_socket, "Comando non riconosciuto\n", 26, 0);
+        }
+
+        freeDatabase(db);
+        close(server_socket);
+        return 0;
+    }
 }
